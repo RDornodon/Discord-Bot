@@ -43,7 +43,14 @@ class COCAnnouncer(commands.Cog, name='CoC Announcer'):
                         footer='Self destruct in 5 mins.')
                 embed.add_field(name='Invitees', value=", ".join(mentions), inline=False)
                 await ctx.send(embed=embed, delete_after=300)
-
+                
+    @commands.command(name='notify-coc', aliases=['ncoc', 'n-coc'])
+    async def notify(self, ctx):
+        await ctx.author.add_roles(ctx.guild.get_role(self.COC_ROLE))
+       
+    @commands.command(name='stop-notify-coc', aliases=['sncoc', 'sn-coc']
+    async def stop_notify(self, ctx):
+        await ctx.author.remove_roles(ctx.guild.get_role(self.COC_ROLE))
 
 def check_url(text):
     urls = re.findall(r"(https?://[^\s]+)", text, flags=re.IGNORECASE)
