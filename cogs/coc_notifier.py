@@ -9,8 +9,39 @@ class COCAnnouncer(commands.Cog, name='CoC Announcer'):
         self.bot = bot
         self.COC_CHANNEL = 0
         self.COC_ROLE = 0
-
-    @commands.command(name='coc')
+    
+    @commands.group(name='coc')
+    async def coc(self, ctx):
+        """CoC group command. Gives info about all commands within group"""
+        embed = discord.Embed(
+            title='CoC Commands',
+            description='A list of CoC commands'
+        )
+        embed.add_field(name='t.coc invite', value='Invite everyone who is online with the CoC role to clash or coward.')
+        embed.add_field(name='t.coc iubscribe', value='Subscribe to listen for invites. You\'re given the CoC role.')
+        embed.add_field(name='t.coc insubscribe', value='Unsubscribe from invites. The CoC role is removed.')
+        embed.add_field(name='t.coc afk', value='Temporarily removed the CoC role for a given amount of seconds. Default is one day.')
+        embed.add_field(name='t.coc list', value='A list of everyone with the role. Doesn\'t tag them')
+        
+        await ctx.send(embed=embed)
+        
+    @coc.command(name='help')
+    async def coc_help(self, ctx):
+        """Help command, returns same thing as the group command"""
+        
+        embed = discord.Embed(
+            title='CoC Commands',
+            description='A list of CoC commands'
+        )
+        embed.add_field(name='t.coc invite', value='Invite everyone who is online with the CoC role to clash or coward.')
+        embed.add_field(name='t.coc iubscribe', value='Subscribe to listen for invites. You\'re given the CoC role.')
+        embed.add_field(name='t.coc insubscribe', value='Unsubscribe from invites. The CoC role is removed.')
+        embed.add_field(name='t.coc afk', value='Temporarily removed the CoC role for a given amount of seconds. Default is one day.')
+        embed.add_field(name='t.coc list', value='A list of everyone with the role. Doesn\'t tag them')
+        
+        await ctx.send(embed=embed)
+    
+    @coc.command(name='inv', aliases=['invite', 'i', 'start', 'play')
     async def invite(self, ctx: commands.Context, *, url: str = None):
         """invite all active COC Group members to compete"""
         if ctx.channel is None or ctx.channel.id != self.COC_CHANNEL:
@@ -44,13 +75,27 @@ class COCAnnouncer(commands.Cog, name='CoC Announcer'):
                 embed.add_field(name='Invitees', value=", ".join(mentions), inline=False)
                 await ctx.send(embed=embed, delete_after=300)
                 
-    @commands.command(name='notify-coc', aliases=['ncoc', 'n-coc'])
-    async def notify(self, ctx):
+    @coc.command(name='subscribe', aliases=['s', 'sub', 'r', 'register', 'reg'])
+    async def subscribe(self, ctx):
+        """Adds author to role"""
         await ctx.author.add_roles(ctx.guild.get_role(self.COC_ROLE))
        
-    @commands.command(name='stop-notify-coc', aliases=['sncoc', 'sn-coc']
+    @coc.command(name='unsubscribe', aliases=['u', 'unsub', 'ur', 'unreg', 'unregister'])
     async def stop_notify(self, ctx):
+        """Removes author from role"""
         await ctx.author.remove_roles(ctx.guild.get_role(self.COC_ROLE))
+                          
+    @coc.command(name='list', aliases=['subscribed']
+    async def list(self, ctx):
+        """Returns a list of people with the role"""
+        await ctx.send(',\n'.join([user.display_name for user in ctx.guild.get_role(self.COC_ROLE).members]))
+
+    @coc.command(name='afk')
+    async def afk(self, ctx, time:int=86400):
+        """Temporarily removes author for role for the given of seconds. Default is one day."""
+        await ctx.author.remove_roles(ctx.guild.get_role(self.COC_ROLE))
+        await asyncio.sleep(time)
+        await ctx.author.add_roles(ctx.guild.get_role(self.COC_ROLE))
 
 def check_url(text):
     urls = re.findall(r"(https?://[^\s]+)", text, flags=re.IGNORECASE)
